@@ -32,11 +32,10 @@ async function stateChange(Trigger, state, sensorType) {
     log('stateChange:            ' + Trigger.name)
     if (state.alarm_motion)
         log('Device Changed state    TriggerMotion')
-    else {
-        log('Device Changed state    CancelMotion')
+    else 
         return
-    }
-    log('Device Sensortype       ' + sensorType)
+    
+    log('Device Sensortype       ' + sensorType);
     await GetDevices();
     var d = new Date().getHours();
     var SearchString = Trigger.name.substring(6);
@@ -44,34 +43,36 @@ async function stateChange(Trigger, state, sensorType) {
     if (Trigger.name.substring(4, 5) == 'N') var night = true;
     var device = find(allDevices, function (o) { return o.name == SearchString; })
     try {
-        if (CheckIfLux(Trigger)) {
-            if (CheckIfDimmer(device)) {
-                if (night && (d < 5 || d >= 23)) {
-                    if (!device.state.onoff) {
-                        device.setCapabilityValue('dim', 0.35);
-                        device.setCapabilityValue('onoff', true);
-                        log('Swithed ' + device.name + ' To 35 percent')
+        if (!device.state.onoff) {
+            if (CheckIfLux(Trigger)) {
+                if (CheckIfDimmer(device)) {
+                    if (night && (d < 5 || d >= 23)) {
+                        if (!device.state.onoff) {
+                            device.setCapabilityValue('dim', 0.35);
+                            device.setCapabilityValue('onoff', true);
+                            log('Swithed ' + device.name + ' To 35 percent')
+                        }
+                        else
+                            log("Device Is Already On")
                     }
-                    else
-                        log("Device Is Already On")
+                    else {
+                        if (!device.state.onoff) {
+                            device.setCapabilityValue('dim', 0.75);
+                            device.setCapabilityValue('onoff', true);
+                            log('Swithed ' + device.name + ' To 75 percent')
+                        }
+                        else
+                            log("Device Is Already On")
+                    }
                 }
                 else {
                     if (!device.state.onoff) {
-                        device.setCapabilityValue('dim', 0.75);
                         device.setCapabilityValue('onoff', true);
-                        log('Swithed ' + device.name + ' To 75 percent')
+                        log('Swithed ' + device.name)
                     }
                     else
                         log("Device Is Already On")
                 }
-            }
-            else {
-                if (!device.state.onoff) {
-                    device.setCapabilityValue('onoff', true);
-                    log('Swithed ' + device.name)
-                }
-                else
-                    log("Device Is Already On")
             }
         }
     }

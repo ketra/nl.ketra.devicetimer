@@ -16,12 +16,15 @@ class DeviceTimer extends Homey.App {
         this.MakeCron();
     }
 
-    getCronString() {
-        return '*/1 * * * *';
-    }
-
     MakeCron() {
         var cronName = "MotionOff"
+        Homey.ManagerCron.unregisterAllTasks()
+            .then(result => {
+                this.log('Cron job deleted successfully');
+            }).catch(error => {
+                this.error(`Cron job deletion failed (${error}`);
+            });
+
         Homey.ManagerCron.getTask(cronName)
             .then(task => {
                 this.log("The task exists: " + cronName);
@@ -30,7 +33,7 @@ class DeviceTimer extends Homey.App {
             .catch(err => {
                 if (err.code == 404) {
                     this.log("The task has not been registered yet, registering task: " + cronName);
-                    Homey.ManagerCron.registerTask(cronName, "*/1 * * * *",null)
+                    Homey.ManagerCron.registerTask(cronName, "*/30 * * * * *",null)
                         .then(task => {
                             task.on('run', () => lib.TurnOffDevices());
                         })
@@ -42,7 +45,13 @@ class DeviceTimer extends Homey.App {
                 }
             });
     }
+    log() {
+        console.log.bind(this, '[log]').apply(this, arguments);
+    }
 
+    error() {
+        console.error.bind(this, '[error]').apply(this, arguments);
+    }
     getApi() {
         if (!this.api) {
             this.api = HomeyAPI.forCurrentHomey();
