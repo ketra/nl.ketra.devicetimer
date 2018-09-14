@@ -1,0 +1,24 @@
+{
+  "id": "nl.ketra.devicetimer",
+  "version": "0.0.1",
+  "compatibility": ">=1.5.0",
+  "sdk": 2,
+  "permissions": [ "homey:manager:api" ],
+  "name": {
+    "en": "Device Timer"
+  },
+  "description": {
+    "en": "A timer for motion devices to control switches"
+  },
+  "category": [
+    "lights"
+  ],
+  "images": {
+    "large": "/assets/images/large.png",
+    "small": "/assets/images/small.png"
+  },
+  "author": {
+    "name": "kevin traa",
+    "email": "ketra90@gmail.com"
+  }
+}
