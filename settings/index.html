@@ -1,0 +1,159 @@
+<!doctype html>
+<html>
+<head>
+    <script type="text/javascript" src="/manager/webserver/assets/js/jquery.js"></script>
+    <script type="text/javascript" src="/homey.js" data-origin="settings"></script>
+</head>
+<body>
+    <h1 data-i18n="settings.title"></h1>
+    <p data-i18n="settings.intro"></p>
+    <style>
+        .form_label {
+            width: 400px !important;
+            display: block !important;
+            margin-right: 20px;
+        }
+
+        .form_input {
+            width: 500px !important;
+            display: block !important;
+        }
+
+        .form_number {
+            width: 75px !important;
+            display: block !important;
+        }
+
+        select {
+            padding: .5em .75em;
+            vertical-align: middle;
+            font-size: 12px;
+            font-family: inherit;
+            font-weight: inherit;
+            border: 1px solid #aaa;
+            border-radius: 2px;
+            width: 270px !important;
+        }
+
+        button {
+            margin-right: 15px;
+        }
+    </style>
+    <fieldset>
+        <legend data-i18n="settings.legendGeneral"></legend>
+        <div class="field row">
+            <label class="form_label" for="devtimer_prefix" data-i18n="settings.prefix"></label>
+            <input class="form_input" id="devtimer_prefix" type="text" value="" />
+        </div>
+        <div class="field row">
+            <label class="form_label" for="devtimer_timeend" data-i18n="settings.timelocation"></label>
+            <input class="form_number" id="devtimer_timeend" type="time" step="2" value="05:00:00"/>
+            <input class="form_number" id="devtimer_timebegin" type="time" step="2" value="23:00:00"/>
+        </div>
+        <input type="checkbox" id="settings_dimmer" value="settings_dimmer"> <label for="settings_dimmer" data-i18n="settings.dimenabled"></label><br />
+        <input type="checkbox" id="settings_night" value="settings_night"> <label for="settings_night" data-i18n="settings.nightenabled"></label>
+    </fieldset>
+    <fieldset>
+        <legend data-i18n="settings.legendlocations"></legend>
+        <div class="field row">
+            <label class="form_label" for="devtimer_nightlocation" data-i18n="settings.nightlocation"></label>
+            <input class="form_number" id="devtimer_nightlocation" type="number" value="" />
+        </div>
+        <div class="field row">
+            <label class="form_label" for="devtimer_devicenamelocation" data-i18n="settings.devicenamelocation"></label>
+            <input class="form_number" id="devtimer_devicenamelocation" type="number" value="" />
+        </div>
+        <div class="field row">
+            <label class="form_label" for="devtimer_timelocation" data-i18n="settings.timelocation"></label>
+            <input class="form_number" id="devtimer_timelocation" type="number" value="" />
+        </div>
+        <div class="field row">
+            <label class="form_label" for="devtimer_dimlocation" data-i18n="settings.dimlocation"></label>
+            <input class="form_number" id="devtimer_dimlocation" type="number" value="" />
+        </div>
+        <label id="pushover_validation"></label>
+        <br>
+        <button id="saveSettings" class="left" data-i18n="settings.saveSettings"></button>
+    </fieldset>
+    <script type="text/javascript">
+        var currentSettings;
+        var validationStatus;
+        // Initialize Homey
+        function onHomeyReady(Homey) {
+            // Ready
+            Homey.ready();
+            // Get saved account settings
+            Homey.get("DevTimerSettings", function (err, value) {
+                if (value != null) {
+                    // Set current accounts
+                    currentSettings = value;
+                    document.getElementById('devtimer_prefix').value = currentSettings['prefix'];
+                    document.getElementById('devtimer_timeend').value = currentSettings['endtime'];
+                    document.getElementById('devtimer_timebegin').value = currentSettings['begintime'];
+                    document.getElementById('devtimer_nightlocation').value = currentSettings['nightlocation'];
+                    document.getElementById('devtimer_devicenamelocation').value = currentSettings['devicenamelocation'];
+                    document.getElementById('devtimer_timelocation').value = currentSettings['timelocation'];
+                    document.getElementById('devtimer_dimlocation').value = currentSettings['dimlocation'];
+                    if (currentSettings['dimmer'] == true) {
+                        document.getElementById('settings_dimmer').checked = true;
+                    } else {
+                        document.getElementById('settings_dimmer').checked = false;
+                    }
+                    if (currentSettings['night'] == true) {
+                        document.getElementById('settings_night').checked = true;
+                    } else {
+                        document.getElementById('settings_night').checked = false;
+                    }
+                } else {
+                }
+            });
+            $('#saveSettings').on('click', function () {
+                saveSettings(Homey);
+            });
+        }
+        function clearSettings() {
+            document.getElementById('devtimer_prefix').value = '';
+            document.getElementById('devtimer_timelocation').value = '';
+        }
+        // Save updated settings
+        function saveSettings(Homey) {
+            // Build array
+            currentSettings = {
+                'prefix': document.getElementById('devtimer_prefix').value,
+                'timelocation': document.getElementById('devtimer_timelocation').value,
+                'endtime': document.getElementById('devtimer_timeend').value,
+                'begintime': document.getElementById('devtimer_timebegin').value,
+                'nightlocation': document.getElementById('devtimer_nightlocation').value,
+                'devicenamelocation': document.getElementById('devtimer_devicenamelocation').value,
+                'timelocation': document.getElementById('devtimer_timelocation').value,
+                'dimlocation': document.getElementById('devtimer_dimlocation').value,
+                'dimmer': document.getElementById('settings_dimmer').checked,
+                'night': document.getElementById('settings_night').checked,
+            };
+            // Show clear
+            $('#clearPushover').css('display', 'block');
+            // Update settings
+            Homey.set("DevTimerSettings", currentSettings, function (err) {
+                if (err) {
+                    // Display failed registration
+                    document.getElementById('saveSettings').style['background-color'] = 'lightcoral';
+                    document.getElementById('saveSettings').style['color'] = 'black';
+                    document.getElementById('saveSettings').innerHTML = __("settings.notsavedSettings");
+                }
+            });
+            // Display successful registration
+            document.getElementById('saveSettings').style['background-color'] = 'lightgreen';
+            document.getElementById('saveSettings').style['color'] = 'white';
+            document.getElementById('saveSettings').innerHTML = __("settings.savedSettings");
+            setTimeout(function () {
+                // Reset button
+                document.getElementById('saveSettings').style['background-color'] = '';
+                document.getElementById('saveSettings').style['color'] = 'black';
+                document.getElementById('saveSettings').innerHTML = __("settings.saveSettings");
+            }, 3000);
+            onHomeyReady(Homey);
+        }
+    </script>
+</body>
+
+</html>

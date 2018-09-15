@@ -1,1 +1,21 @@
-{}
+{
+  "settings": {
+    "title": "Settings for DeviceTimers",
+    "intro": "Here you can enter the locations of the time, between what hours nighttime is expected and if certain settings should be available",
+    "error": "An error has occured.",
+    "timelocation": "Time Location",
+    "dimlocation": "Dimmer Identifier Location",
+    "nightlocation": "Night identifier location",
+    "dimenabled": "Enable Dimmer Identifier?",
+    "nightenabled": "Enable Night Identifier?",
+    "prefix": "Prefix string",
+    "devicenamelocation": "Devicename location",
+    "nighttimes": "Night times",
+    "saveSettings": "Save",
+    "savedSettings": "Saved",
+    "notsavedSettings": "Failed...",
+    "legendgeneral": "General Settings",
+    "legendlocations":  "Identifier Locations"
+
+  }
+}
