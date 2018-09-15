@@ -1,5 +1,6 @@
 'use strict';
 
+const Homey = require('homey');
 const { HomeyAPI } = require('athom-api')
 const find = require('lodash.find');
 
@@ -21,6 +22,7 @@ module.exports.attachEventListener = function attachEventListener(device, sensor
 module.exports.TurnOffDevices = async function TurnOffDevices() {
     await GetDevices();
     log('-----------------------------------------------')
+    logtoall("Checking for devices to turn off")
     for (let device in allDevices) {
         CheckAndTurnOff(allDevices[device])
     }
@@ -29,11 +31,14 @@ module.exports.TurnOffDevices = async function TurnOffDevices() {
 // this function gets called when a device with an attached eventlistener fires an event.
 async function stateChange(Trigger, state, sensorType) {
     log('-----------------------------------------------')
-    log('stateChange:            ' + Trigger.name)
-    if (state.alarm_motion)
-        log('Device Changed state    TriggerMotion')
-    else 
+    if (state.alarm_motion) {
+        logtoall('stateChange:            ' + Trigger.name)
+        logtoall('Device Changed state    TriggerMotion')
+    }
+    else {
+        log('stateChange:            ' + Trigger.name)
         return
+    }
     
     log('Device Sensortype       ' + sensorType);
     await GetDevices();
@@ -50,7 +55,7 @@ async function stateChange(Trigger, state, sensorType) {
                         if (!device.state.onoff) {
                             device.setCapabilityValue('dim', 0.35);
                             device.setCapabilityValue('onoff', true);
-                            log('Swithed ' + device.name + ' To 35 percent')
+                            logtoall('Swithed ' + device.name + ' To 35 percent')
                         }
                         else
                             log("Device Is Already On")
@@ -59,7 +64,7 @@ async function stateChange(Trigger, state, sensorType) {
                         if (!device.state.onoff) {
                             device.setCapabilityValue('dim', 0.75);
                             device.setCapabilityValue('onoff', true);
-                            log('Swithed ' + device.name + ' To 75 percent')
+                            logtoall('Swithed ' + device.name + ' To 75 percent')
                         }
                         else
                             log("Device Is Already On")
@@ -103,11 +108,18 @@ function CheckAndTurnOff(device) {
             if (CheckIfDeviceOn(device, allDevices)) {
                 var SearchString = device.name.substring(6)
                 var device = find(allDevices, function (o) { return o.name == SearchString; });
-                log(device.name + " is on. switching off")
+                logtoall(device.name + " is on. switching off")
                 device.setCapabilityValue('onoff', !device.state.onoff);
             }
         }
     }
+}
+
+function logtoall(text)
+{
+    var d = new Date();
+    console.log(d.toLocaleString() + " - " + text)
+    Homey.ManagerApi.realtime("nl.ketra.devicetimer", text)
 }
 
 function log(text) {

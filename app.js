@@ -10,7 +10,8 @@ var aModeDevice;
 
 class DeviceTimer extends Homey.App {
 	
-	onInit() {
+    onInit() {
+        Homey.ManagerApi.realtime("nl.ketra.devicetimer","Started")
         this.log('MyApp is running...');
         this.enumerateDevices();
         this.MakeCron();
@@ -47,6 +48,7 @@ class DeviceTimer extends Homey.App {
     }
     log() {
         console.log.bind(this, '[log]').apply(this, arguments);
+        Homey.ManagerApi.realtime("nl.ketra.devicetimer", arguments)
     }
 
     error() {

@@ -1,24 +1,34 @@
 {
   "id": "nl.ketra.devicetimer",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "compatibility": ">=1.5.0",
   "sdk": 2,
-  "permissions": [ "homey:manager:api" ],
+  "permissions": [
+    "homey:manager:api"
+  ],
   "name": {
     "en": "Device Timer"
   },
   "description": {
-    "en": "A timer for motion devices to control switches"
+    "en": "A timer for motion devices to control switches",
+	"nl": "Een timer om apparaten te koppelen en te schakelen via motion"
   },
   "category": [
-    "lights"
+    "lights",
+	"security"
   ],
+  "bugs": {
+        "url": "https://github.com/ketra/nl.ketra.devicetimer/issues"
+	},
   "images": {
-    "large": "/assets/images/large.png",
-    "small": "/assets/images/small.png"
+    "large": "/assets/images/large.jpg",
+    "small": "/assets/images/small.jpg"
   },
   "author": {
     "name": "kevin traa",
     "email": "ketra90@gmail.com"
-  }
+  },
+  "tags": {
+        "en": [ "Timer", "Motion", "Switch" ]
+    }
 }
