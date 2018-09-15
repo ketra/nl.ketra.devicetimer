@@ -43,6 +43,8 @@ async function stateChange(Trigger, state, sensorType) {
     log('Device Sensortype       ' + sensorType);
     await GetDevices();
     var d = new Date().getHours();
+    var date = new Date()
+    Homey.ManagerSettings.set(Trigger.name, date)
     var SearchString = Trigger.name.substring(6);
     if (Trigger.name.substring(3, 4) == 'D') var dimmer = true;
     if (Trigger.name.substring(4, 5) == 'N') var night = true;
@@ -98,8 +100,9 @@ function CheckAndTurnOff(device) {
     var d = new Date();
     if ('alarm_motion' in device.capabilities && device.name.substring(0, 3) == 'PIR') {
         log("Processing " + device.name)
+        //console.log(device.lastUpdated.alarm_motion)
         var ontime = parseInt(device.name.substring(5, 6))
-        var timeon = getMinutesBetweenDates(new Date(device.lastUpdated.alarm_motion), d)
+        var timeon = getMinutesBetweenDates(new Date(GetTimeOn(device)), d)
         if (timeon < ontime) {
             log(device.name + " has been on within " + ontime + " Minutes (" + timeon + ")")
         }
@@ -139,6 +142,19 @@ function CheckIfDeviceOn(dev, devices) {
     var device = find(devices, function (o) { return o.name == SearchString; });
     log(device.name + " ON? : " + device.state.onoff)
     return device.state.onoff
+}
+
+function GetTimeOn(device) {
+    try {
+        var timeon = new Date(Homey.ManagerSettings.get(device.name))
+        if (Homey.ManagerSettings.get(device.name) === undefined)
+            timeon = new Date(device.lastUpdated.alarm_motion)
+        
+    }
+    catch (err) {
+        console.error(err)
+    }
+    return timeon;
 }
 
 
