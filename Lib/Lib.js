@@ -6,6 +6,7 @@ const find = require('lodash.find');
 
 
 var allDevices;
+var settings;
 var sModeDevice;
 var aModeDevice;
 
@@ -15,8 +16,6 @@ var aModeDevice;
 module.exports.attachEventListener = function attachEventListener(device, sensorType) {
     device.on('$state', (state => { stateChange(device, state, sensorType) }));
     log('Attached Eventlistener:     ' + device.name)
-    log('Fully Monitored device:     ' + device.name)
-
 }
 
 module.exports.TurnOffDevices = async function TurnOffDevices() {
@@ -30,6 +29,7 @@ module.exports.TurnOffDevices = async function TurnOffDevices() {
 
 // this function gets called when a device with an attached eventlistener fires an event.
 async function stateChange(Trigger, state, sensorType) {
+    settings = Homey.ManagerSettings.get('DevTimerSettings');
     log('-----------------------------------------------')
     if (state.alarm_motion) {
         logtoall('stateChange:            ' + Trigger.name)
@@ -42,18 +42,24 @@ async function stateChange(Trigger, state, sensorType) {
     
     log('Device Sensortype       ' + sensorType);
     await GetDevices();
-    var d = new Date().getHours();
+    var d = new Date().getHours()
+    var begintime = parseInt(settings.begintime.split(':')[0])
+    var endtime = parseInt(settings.endtime.split(':')[0])
     var date = new Date()
     Homey.ManagerSettings.set(Trigger.name, date)
-    var SearchString = Trigger.name.substring(6);
-    if (Trigger.name.substring(3, 4) == 'D') var dimmer = true;
-    if (Trigger.name.substring(4, 5) == 'N') var night = true;
+    var nightident = Trigger.name.substring(settings.nightlocation, parseInt(settings.nightlocation) + 1)
+    var dimident = Trigger.name.substring(settings.dimlocation, parseInt(settings.dimlocation) + 1) 
+    var SearchString = Trigger.name.substring(settings.devicenamelocation);
+
+    if (dimident == 'D') var dimmer = true;
+    if (nightident == 'N') var night = true;
+    console.log(settings)
     var device = find(allDevices, function (o) { return o.name == SearchString; })
     try {
         if (!device.state.onoff) {
             if (CheckIfLux(Trigger)) {
                 if (CheckIfDimmer(device)) {
-                    if (night && (d < 5 || d >= 23)) {
+                    if (night && (d < endtime || d >= begintime)) {
                         if (!device.state.onoff) {
                             device.setCapabilityValue('dim', 0.35);
                             device.setCapabilityValue('onoff', true);
