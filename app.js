@@ -4,7 +4,6 @@ const Homey = require('homey');
 const { HomeyAPI } = require('athom-api')
 const lib = require('./Lib/Lib.js')
 
-var allDevices;
 var sModeDevice;
 var aModeDevice;
 
@@ -62,7 +61,7 @@ class DeviceTimer extends Homey.App {
     }
 	async getDevices() {
         const api = await this.getApi();
-        allDevices = await api.devices.getDevices();
+        var allDevices = await api.devices.getDevices();
         return allDevices;
     }
     async enumerateDevices() {
@@ -80,23 +79,24 @@ class DeviceTimer extends Homey.App {
         api.devices.on('device.delete', async (id) => {
             await this.log('Device deleted!: ')
         });
-        allDevices = await api.devices.getDevices();
+        var allDevices = await api.devices.getDevices();
 
         for (let device in allDevices) {
             this.addDevice(allDevices[device], api)
         };
-
+        allDevices = null
         this.log('Enumerating devices done.')
     }
 	    // Add device function, only motion- and contact sensors are added
     addDevice(device, api) {
+        var settings = Homey.ManagerSettings.get('DevTimerSettings');
         if (device.data.id === 'sMode') {
             sModeDevice = device;
             this.log('Found Mode Switch:          ' + device.name)
             this.log('Variabele:                  ' + sModeDevice.name)
         }
         //if (device.class === 'sensor' && 'alarm_motion' in device.capabilities) {
-        if ('alarm_motion' in device.capabilities && device.name.substring(0, 3) == 'PIR') {
+        if ('alarm_motion' in device.capabilities && device.name.substring(0, settings.prefix.length) == settings.prefix) {
             this.log('Found motion sensor:        ' + device.name)
             lib.attachEventListener(device,'motion')
         }

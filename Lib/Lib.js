@@ -5,10 +5,7 @@ const { HomeyAPI } = require('athom-api')
 const find = require('lodash.find');
 
 
-var allDevices;
 var settings;
-var sModeDevice;
-var aModeDevice;
 
 //External Functions
 
@@ -19,12 +16,14 @@ module.exports.attachEventListener = function attachEventListener(device, sensor
 }
 
 module.exports.TurnOffDevices = async function TurnOffDevices() {
-    await GetDevices();
+    settings = Homey.ManagerSettings.get('DevTimerSettings');
+    var allDevices = await GetDevices();
     log('-----------------------------------------------')
     logtoall("Checking for devices to turn off")
     for (let device in allDevices) {
-        CheckAndTurnOff(allDevices[device])
+        CheckAndTurnOff(allDevices[device], allDevices)
     }
+    allDevices = null;
 }
 
 // this function gets called when a device with an attached eventlistener fires an event.
@@ -41,7 +40,7 @@ async function stateChange(Trigger, state, sensorType) {
     }
     
     log('Device Sensortype       ' + sensorType);
-    await GetDevices();
+    var allDevices = await GetDevices();
     var d = new Date().getHours()
     var begintime = parseInt(settings.begintime.split(':')[0])
     var endtime = parseInt(settings.endtime.split(':')[0])
@@ -51,14 +50,14 @@ async function stateChange(Trigger, state, sensorType) {
     var dimident = Trigger.name.substring(settings.dimlocation, parseInt(settings.dimlocation) + 1) 
     var SearchString = Trigger.name.substring(settings.devicenamelocation);
 
-    if (dimident == 'D') var dimmer = true;
-    if (nightident == 'N') var night = true;
+    if (dimident == 'D' && settings.dimmer) var dimmer = true; else var dimmer = false
+    if (nightident == 'N' && settings.night) var night = true; else var night = false
     console.log(settings)
     var device = find(allDevices, function (o) { return o.name == SearchString; })
     try {
         if (!device.state.onoff) {
             if (CheckIfLux(Trigger)) {
-                if (CheckIfDimmer(device)) {
+                if (CheckIfDimmer(device) && dimmer) {
                     if (night && (d < endtime || d >= begintime)) {
                         if (!device.state.onoff) {
                             device.setCapabilityValue('dim', 0.35);
@@ -88,6 +87,7 @@ async function stateChange(Trigger, state, sensorType) {
                 }
             }
         }
+        allDevices = null;
     }
     catch (err) {
         console.error(err)
@@ -96,15 +96,15 @@ async function stateChange(Trigger, state, sensorType) {
 
 async function GetDevices() {
     const api = await HomeyAPI.forCurrentHomey();
-    allDevices = await api.devices.getDevices();
+    var allDevices = await api.devices.getDevices();
     return allDevices;
 }
 
 
 
-function CheckAndTurnOff(device) {
+function CheckAndTurnOff(device, allDevices) {
     var d = new Date();
-    if ('alarm_motion' in device.capabilities && device.name.substring(0, 3) == 'PIR') {
+    if ('alarm_motion' in device.capabilities && device.name.substring(0, settings.prefix.length) == settings.prefix) {
         log("Processing " + device.name)
         //console.log(device.lastUpdated.alarm_motion)
         var ontime = parseInt(device.name.substring(5, 6))
