@@ -114,7 +114,7 @@ function CheckAndTurnOff(device, allDevices) {
         }
         else {
             log(device.name + " has not been on in the last " + ontime + " Minutes")
-            if (CheckIfDeviceOn(device, allDevices)) {
+            if (CheckIfDeviceOn(device, allDevices) && !device.state.alarm_motion) {
                 var SearchString = device.name.substring(6)
                 var device = find(allDevices, function (o) { return o.name == SearchString; });
                 logtoall(device.name + " is on. switching off")
@@ -137,7 +137,7 @@ function log(text) {
 }
 
 function getMinutesBetweenDates(startDate, endDate) {
-    //console.log('Checking : '+ startDate + ' Against : ' + endDate)ก
+    //console.log('Checking : '+ startDate + ' Against : ' + endDate)ยก
     var diff = endDate.getTime() - startDate.getTime();
     diff = diff / 60000
     return Math.round(diff);
