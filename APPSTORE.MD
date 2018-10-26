@@ -1,4 +1,4 @@
-##Description
+## Description
 This app adds the possibility to switch lights based on a motion sensors name
 like 
 
