@@ -15,7 +15,8 @@
     "savedSettings": "Saved",
     "notsavedSettings": "Failed...",
     "legendgeneral": "General Settings",
-    "legendlocations":  "Identifier Locations"
+    "legendlocations":  "Identifier Locations",
+    "daytimes": "Start and endtime of the day"
 
   }
 }
