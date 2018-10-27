@@ -20,6 +20,14 @@
   "bugs": {
     "url": "https://github.com/ketra/nl.ketra.devicetimer/issues"
   },
+      "contributing": {
+        "donate": {
+            "paypal": {
+                "username": "gargytfa@gmail.com"
+            }
+        }
+    }
+  "homeyCommunityTopicId": 3347,
   "images": {
     "large": "/assets/images/large.jpg",
     "small": "/assets/images/small.jpg"
