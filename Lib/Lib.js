@@ -46,13 +46,13 @@ async function stateChange(Trigger, state, sensorType) {
     var endtime = parseInt(settings.endtime.split(':')[0])
     var date = new Date()
     Homey.ManagerSettings.set(Trigger.name, date)
-    var nightident = Trigger.name.substring(settings.nightlocation, parseInt(settings.nightlocation) + 1)
-    var dimident = Trigger.name.substring(settings.dimlocation, parseInt(settings.dimlocation) + 1) 
-    var SearchString = Trigger.name.substring(settings.devicenamelocation);
+    var nightident = Trigger.name.substring(parseInt(settings.nightlocation) - 1, parseInt(settings.nightlocation))
+    var dimident = Trigger.name.substring(parseInt(settings.dimlocation) - 1, parseInt(settings.dimlocation)) 
+    var SearchString = Trigger.name.substring(parseInt(settings.devicenamelocation) - 1);
 
     if (dimident == 'D' && settings.dimmer) var dimmer = true; else var dimmer = false
     if (nightident == 'N' && settings.night) var night = true; else var night = false
-    console.log(settings)
+    //console.log(settings)
     var device = find(allDevices, function (o) { return o.name == SearchString; })
     try {
         if (!device.state.onoff) {

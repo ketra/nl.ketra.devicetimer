@@ -1,6 +1,6 @@
 {
   "id": "nl.ketra.devicetimer",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "compatibility": ">=1.5.0",
   "sdk": 2,
   "permissions": [
@@ -20,6 +20,14 @@
   "bugs": {
     "url": "https://github.com/ketra/nl.ketra.devicetimer/issues"
   },
+  "contributing": {
+    "donate": {
+      "paypal": {
+        "username": "ketra90"
+      }
+    }
+  },
+  "homeyCommunityTopicId": 3347,
   "images": {
     "large": "/assets/images/large.jpg",
     "small": "/assets/images/small.jpg"
