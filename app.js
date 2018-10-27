@@ -12,6 +12,22 @@ class DeviceTimer extends Homey.App {
     onInit() {
         Homey.ManagerApi.realtime("nl.ketra.devicetimer","Started")
         this.log('MyApp is running...');
+        var settings = Homey.ManagerSettings.get('DevTimerSettings');
+        if (!settings)
+        {
+            var newsettings = {
+                'prefix': 'PIR',
+                'endtime' : '23:00:00',
+                'begintime': '05:00:00',
+                'nightlocation': 5,
+                'devicenamelocation': 7,
+                'timelocation': 6,
+                'dimlocation': 4,
+                'dimmer': true,
+                'night': true,
+            }
+            Homey.ManagerSettings.set('DevTimerSettings', newsettings)
+        }
         this.enumerateDevices();
         this.MakeCron();
     }
