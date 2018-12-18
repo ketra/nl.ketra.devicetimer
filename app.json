@@ -1,7 +1,7 @@
 {
   "id": "nl.ketra.devicetimer",
   "version": "0.0.4",
-  "compatibility": ">=1.5.0",
+  "compatibility": ">=2.0.0",
   "sdk": 2,
   "permissions": [
     "homey:manager:api"

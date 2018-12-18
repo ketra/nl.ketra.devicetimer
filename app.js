@@ -1,14 +1,14 @@
 'use strict';
 
 const Homey = require('homey');
-const { HomeyAPI } = require('athom-api')
+const { HomeyAPI  } = require('athom-api')
 const lib = require('./Lib/Lib.js')
 
 var sModeDevice;
 var aModeDevice;
 
 class DeviceTimer extends Homey.App {
-	
+
     onInit() {
         Homey.ManagerApi.realtime("nl.ketra.devicetimer","Started")
         this.log('MyApp is running...');
@@ -29,7 +29,8 @@ class DeviceTimer extends Homey.App {
             Homey.ManagerSettings.set('DevTimerSettings', newsettings)
         }
         this.enumerateDevices();
-        this.MakeCron();
+        //this.MakeCron();
+        this.Schedule();
     }
 
     MakeCron() {
@@ -49,7 +50,7 @@ class DeviceTimer extends Homey.App {
             .catch(err => {
                 if (err.code == 404) {
                     this.log("The task has not been registered yet, registering task: " + cronName);
-                    Homey.ManagerCron.registerTask(cronName, "*/30 * * * * *",null)
+                    Homey.ManagerCron.registerTask('Test',cronName, "*/30 * * * * *",null)
                         .then(task => {
                             task.on('run', () => lib.TurnOffDevices());
                         })
@@ -61,6 +62,11 @@ class DeviceTimer extends Homey.App {
                 }
             });
     }
+
+    Schedule()
+    {
+      setInterval(() => lib.TurnOffDevices(), 30000)
+    }
     log() {
         console.log.bind(this, '[log]').apply(this, arguments);
         Homey.ManagerApi.realtime("nl.ketra.devicetimer", arguments)
@@ -70,10 +76,17 @@ class DeviceTimer extends Homey.App {
         console.error.bind(this, '[error]').apply(this, arguments);
     }
     getApi() {
+      try {
         if (!this.api) {
             this.api = HomeyAPI.forCurrentHomey();
         }
+      } catch (e) {
+        this.log(e)
+      } finally {
         return this.api;
+      }
+
+
     }
 	async getDevices() {
         const api = await this.getApi();
@@ -112,10 +125,15 @@ class DeviceTimer extends Homey.App {
             this.log('Variabele:                  ' + sModeDevice.name)
         }
         //if (device.class === 'sensor' && 'alarm_motion' in device.capabilities) {
-        if ('alarm_motion' in device.capabilities && device.name.substring(0, settings.prefix.length) == settings.prefix) {
+        if ('alarm_motion' in device.capabilitiesObj  && device.name.substring(0, settings.prefix.length) == settings.prefix) {
             this.log('Found motion sensor:        ' + device.name)
-            lib.attachEventListener(device,'motion')
+            lib.attachEventListener(device, 'motion')
         }
+        //if ('onoff' in device.capabilitiesObj)
+        //{
+        //  this.log('found onoff device')
+        //  this.log('device ' + device.name + ' is ' + device.capabilitiesObj.onoff.value )
+        //}
     }
 
 
