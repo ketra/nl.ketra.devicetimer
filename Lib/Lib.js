@@ -33,7 +33,8 @@ module.exports.TurnOffDevices = async function TurnOffDevices() {
 async function stateChange(Trigger, state, sensorType) {
     settings = Homey.ManagerSettings.get('DevTimerSettings');
     log('-----------------------------------------------')
-    if (state.alarm_motion) {
+    //log(state)
+    if (state) {
         logtoall('stateChange:            ' + Trigger.name)
         logtoall('Device Changed state    TriggerMotion')
     }
@@ -48,6 +49,7 @@ async function stateChange(Trigger, state, sensorType) {
     var begintime = parseInt(settings.begintime.split(':')[0])
     var endtime = parseInt(settings.endtime.split(':')[0])
     var date = new Date()
+    logtoall("Begintime " + begintime + " endtime " + endtime + " time " + d)
     Homey.ManagerSettings.set(Trigger.name, date)
     var nightident = Trigger.name.substring(parseInt(settings.nightlocation) - 1, parseInt(settings.nightlocation))
     var dimident = Trigger.name.substring(parseInt(settings.dimlocation) - 1, parseInt(settings.dimlocation))
@@ -55,26 +57,27 @@ async function stateChange(Trigger, state, sensorType) {
 
     if (dimident == 'D' && settings.dimmer) var dimmer = true; else var dimmer = false
     if (nightident == 'N' && settings.night) var night = true; else var night = false
-    //console.log(settings)
+    logtoall("device night?: " + night)
     var device = find(allDevices, function (o) { return o.name == SearchString; })
+    //console.log(device)
     try {
         if (!device.capabilitiesObj.onoff.value) {
             if (CheckIfLux(Trigger)) {
                 if (CheckIfDimmer(device) && dimmer) {
                     if (night && (d < endtime || d >= begintime)) {
                         if (!device.capabilitiesObj.onoff.value) {
-                            device.setCapabilityValue('dim', 0.35);
+                            device.setCapabilityValue('dim', 0.75);
                             device.setCapabilityValue('onoff', true);
-                            logtoall('Swithed ' + device.name + ' To 35 percent')
+                            logtoall('Swithed ' + device.name + ' To 75 percent')
                         }
                         else
                             log("Device Is Already On")
                     }
                     else {
                         if (!device.capabilitiesObj.onoff.value) {
-                            device.setCapabilityValue('dim', 0.75);
+                            device.setCapabilityValue('dim', 0.35);
                             device.setCapabilityValue('onoff', true);
-                            logtoall('Swithed ' + device.name + ' To 75 percent')
+                            logtoall('Swithed ' + device.name + ' To 35 percent')
                         }
                         else
                             log("Device Is Already On")
@@ -170,9 +173,9 @@ function GetTimeOn(device) {
 
 
 function CheckIfLux(device) {
-    if (device.device.capabilitiesObj.measure_luminance != undefined) {
-        log("Device has luminance: " + device.device.capabilitiesObj.measure_luminance.value)
-        if (device.device.capabilitiesObj.measure_luminance.value > 50) return false;
+    if (device.capabilitiesObj.measure_luminance != undefined) {
+        log("Device has luminance: " + device.capabilitiesObj.measure_luminance.value)
+        if (device.capabilitiesObj.measure_luminance.value > 50) return false;
         else return true;
     }
     else {
@@ -180,7 +183,7 @@ function CheckIfLux(device) {
     }
 }
 function CheckIfDimmer(device) {
-    if (device.device.capabilitiesObj.dim != undefined) {
+    if (device.capabilitiesObj.dim != undefined) {
         log("Device is dimmer")
         return true;
     }

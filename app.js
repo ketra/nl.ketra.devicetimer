@@ -13,6 +13,10 @@ class DeviceTimer extends Homey.App {
         Homey.ManagerApi.realtime("nl.ketra.devicetimer","Started")
         this.log('MyApp is running...');
         var settings = Homey.ManagerSettings.get('DevTimerSettings');
+        //Homey.ManagerSettings.on('set',function() {
+        //  console.log("settings saved Restarting")
+        //  this.RebootAPP();
+        //})
         if (!settings)
         {
             var newsettings = {
@@ -28,6 +32,7 @@ class DeviceTimer extends Homey.App {
             }
             Homey.ManagerSettings.set('DevTimerSettings', newsettings)
         }
+
         this.enumerateDevices();
         //this.MakeCron();
         this.Schedule();
@@ -75,7 +80,7 @@ class DeviceTimer extends Homey.App {
     error() {
         console.error.bind(this, '[error]').apply(this, arguments);
     }
-    getApi() {
+    async getApi() {
       try {
         if (!this.api) {
             this.api = HomeyAPI.forCurrentHomey();
@@ -88,6 +93,17 @@ class DeviceTimer extends Homey.App {
 
 
     }
+    async RebootAPP(){
+      try {
+        let api = await this.getApi()
+        api.ManagerApps.restartApp("nl.ketra.devicetimer")
+        console.log("restarting App")
+      } catch (e) {
+        console.log(e)
+      }
+
+    }
+
 	async getDevices() {
         const api = await this.getApi();
         var allDevices = await api.devices.getDevices();

@@ -80,8 +80,7 @@
         var validationStatus;
         // Initialize Homey
         function onHomeyReady(Homey) {
-            // Ready
-            Homey.ready();
+            
             // Get saved account settings
             Homey.get("DevTimerSettings", function (err, value) {
                 if (value != null) {
@@ -110,6 +109,8 @@
             $('#saveSettings').on('click', function () {
                 saveSettings(Homey);
             });
+			// Ready
+            Homey.ready();
         }
         function clearSettings() {
             document.getElementById('devtimer_prefix').value = '';
