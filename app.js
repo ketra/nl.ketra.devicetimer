@@ -8,7 +8,7 @@ var sModeDevice;
 var aModeDevice;
 
 class DeviceTimer extends Homey.App {
-	
+
     onInit() {
         Homey.ManagerApi.realtime("nl.ketra.devicetimer","Started")
         this.log('MyApp is running...');
@@ -72,7 +72,7 @@ class DeviceTimer extends Homey.App {
         api.devices.on('device.create', async (id) => {
             await this.log('New device found!')
             const device = await api.devices.getDevice({
-                id: id
+                id: id.id
             })
             await this.addDevice(device);
         });
@@ -90,13 +90,13 @@ class DeviceTimer extends Homey.App {
 	    // Add device function, only motion- and contact sensors are added
     addDevice(device, api) {
         var settings = Homey.ManagerSettings.get('DevTimerSettings');
-        if (device.data.id === 'sMode') {
+        if ('alarm_motion' in device.capabilitiesObj) {
             sModeDevice = device;
             this.log('Found Mode Switch:          ' + device.name)
             this.log('Variabele:                  ' + sModeDevice.name)
         }
         //if (device.class === 'sensor' && 'alarm_motion' in device.capabilities) {
-        if ('alarm_motion' in device.capabilities && device.name.substring(0, settings.prefix.length) == settings.prefix) {
+        if ('alarm_motion' in device.capabilitiesObj && device.name.substring(0, settings.prefix.length) == settings.prefix) {
             this.log('Found motion sensor:        ' + device.name)
             lib.attachEventListener(device,'motion')
         }
